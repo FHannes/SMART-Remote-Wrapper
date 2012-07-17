@@ -1,0 +1,34 @@
+{$L SmartRemote.dll}
+
+function InitSmart(const ForceNew: Boolean): Integer;
+var
+  I, Count: Integer; 
+  Params: TStrArray; 
+  Page: string;
+begin
+  if not ForceNew then
+  begin
+    Count := SmartGetClients(True); 
+    if Count > 0 then
+    begin
+      for I := 0 to Count do
+      begin
+        Result := SmartClientID(i); 
+        if SmartPairClient(Result) then 
+        begin                  
+          SetClient(CreateSMARTClient(Result));
+          Exit;
+        end;
+      end;
+    end;
+  end;  
+  Page := Between('<iframe id="game" src="', '"', GetPage('http://www.runescape.com/game.ws?j=1'));
+  Params := Explode(',', Page);
+  Result := SmartSpawnClient(ScriptPath, Params[0], ',' + Params[1], 765, 503, 's', '', '', -1);
+  SetClient(CreateSMARTClient(Result));
+end;
+
+begin  
+  if InitSMARTLib(ScriptPath + 'libsmartremote32.dll') then
+    InitSmart(False);
+end.
