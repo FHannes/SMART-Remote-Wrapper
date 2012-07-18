@@ -12,6 +12,7 @@ uses
   System.SysUtils,
   System.Classes,
   System.Win.Registry,
+  System.StrUtils,
   WinApi.Windows,
   Vcl.Controls,
   Vcl.Graphics;
@@ -344,8 +345,19 @@ end;
 
 function SmartSpawnClient(const RemotePath, Root, Params: AnsiString; const Width, Height: Integer;
   const InitSeq, UserAgent, JVMPath: AnsiString; const MaxMem: Integer): Integer; stdcall;
+var
+  RemotePathFixed: AnsiString;
+  I, L: Integer;
 begin
-  Result := SMART_Exp_SpawnClient(PAnsiChar(RemotePath), PAnsiChar(Root), PAnsiChar(Params), Width, Height,
+  RemotePathFixed := RemotePath;
+  if PathDelim <> '/' then
+  begin
+    L := Length(RemotePathFixed);
+    for I := 1 to L do
+      if RemotePathFixed[I] = PathDelim then
+        RemotePathFixed[I] := '/';
+  end;
+  Result := SMART_Exp_SpawnClient(PAnsiChar(RemotePathFixed), PAnsiChar(Root), PAnsiChar(Params), Width, Height,
     PAnsiChar(InitSeq), PAnsiChar(UserAgent), PAnsiChar(JVMPath), MaxMem);
 end;
 
