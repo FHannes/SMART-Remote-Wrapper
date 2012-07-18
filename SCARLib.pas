@@ -64,8 +64,14 @@ type
   PBox = ^TBox;
   TBox = record
     X1, Y1, X2, Y2: Integer;
+  private
+    function GetWidth: Integer;
+    function GetHeight: Integer;
   public
-    constructor Create(const X1, Y1, X2, Y2: Integer);
+    constructor Create(const X1, Y1, X2, Y2: Integer); overload;
+    constructor Create(const Rect: TRect); overload;
+    property Width: Integer read GetWidth;
+    property Height: Integer read GetHeight;
   end;
 
   TSCARClient = Pointer;
@@ -162,6 +168,24 @@ begin
   Self.Y1 := Y1;
   Self.X2 := X2;
   Self.Y2 := Y2;
+end;
+
+constructor TBox.Create(const Rect: TRect);
+begin
+  Self.X1 := Rect.Left;
+  Self.Y1 := Rect.Top;
+  Self.X2 := Rect.Right - 1;
+  Self.Y2 := Rect.Bottom - 1;
+end;
+
+function TBox.GetHeight: Integer;
+begin
+  Result := Y2 - Y1 + 1;
+end;
+
+function TBox.GetWidth: Integer;
+begin
+  Result := X2 - X1 + 1;
 end;
 
 end.
