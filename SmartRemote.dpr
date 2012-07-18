@@ -64,8 +64,6 @@ begin
     SMART_Exp_PairClient := GetProcAddress(SMARTLib, 'exp_pairClient');
     SMART_Exp_KillClient := GetProcAddress(SMARTLib, 'exp_killClient');
     SMART_Exp_CurrentClient := GetProcAddress(SMARTLib, 'exp_getCurrent');
-    SMART_Exp_ImageArray := GetProcAddress(SMARTLib, 'exp_getImageArray');
-    SMART_Exp_DebugArray := GetProcAddress(SMARTLib, 'exp_getDebugArray');
     SMART_Exp_GetRefresh := GetProcAddress(SMARTLib, 'exp_getRefresh');
     SMART_Exp_SetRefresh := GetProcAddress(SMARTLib, 'exp_setRefresh');
     SMART_Exp_SetTransparentColor := GetProcAddress(SMARTLib, 'exp_setTransparentColor');
@@ -405,16 +403,6 @@ begin
   Result := SMART_Exp_CurrentClient;
 end;
 
-function SmartImageArray: Integer; stdcall;
-begin
-  Result := SMART_Exp_ImageArray;
-end;
-
-function SmartDebugArray: Integer; stdcall;
-begin
-  Result := SMART_Exp_DebugArray;
-end;
-
 function SmartGetRefresh: Integer; stdcall;
 begin
   Result := SMART_Exp_GetRefresh;
@@ -563,7 +551,7 @@ end;
 
 function OnGetFuncCount: Integer; stdcall;
 begin
-  Result := 37;
+  Result := 35;
 end;
 
 function OnGetFuncInfo(const Idx: Integer; out ProcAddr: Pointer; out ProcDef: PAnsiChar;
@@ -612,146 +600,136 @@ begin
       CallConv := ccStdCall;
     end;
     8: begin
-      ProcAddr := @SmartImageArray;
-      ProcDef := 'function SmartImageArray: Integer;';
-      CallConv := ccStdCall;
-    end;
-    9: begin
-      ProcAddr := @SmartDebugArray;
-      ProcDef := 'function SmartDebugArray: Integer;';
-      CallConv := ccStdCall;
-    end;
-    10: begin
       ProcAddr := @SmartGetRefresh;
       ProcDef := 'function SmartGetRefresh: Integer;';
       CallConv := ccStdCall;
     end;
-    11: begin
+    9: begin
       ProcAddr := @SmartSetRefresh;
       ProcDef := 'procedure SmartSetRefresh(const X: Integer);';
       CallConv := ccStdCall;
     end;
-    12: begin
+    10: begin
       ProcAddr := @SmartSetTransparentColor;
       ProcDef := 'procedure SmartSetTransparentColor(const Color: Integer);';
       CallConv := ccStdCall;
     end;
-    13: begin
+    11: begin
       ProcAddr := @SmartSetDebug;
       ProcDef := 'procedure SmartSetDebug(const Enabled: Boolean);';
       CallConv := ccStdCall;
     end;
-    14: begin
+    12: begin
       ProcAddr := @SmartSetGraphics;
       ProcDef := 'procedure SmartSetGraphics(const Enabled: Boolean);';
       CallConv := ccStdCall;
     end;
-    15: begin
+    13: begin
       ProcAddr := @SmartSetEnabled;
       ProcDef := 'procedure SmartSetEnabled(const Enabled: Boolean);';
       CallConv := ccStdCall;
     end;
-    16: begin
+    14: begin
       ProcAddr := @SmartActive;
       ProcDef := 'function SmartActive: Boolean;';
       CallConv := ccStdCall;
     end;
-    17: begin
+    15: begin
       ProcAddr := @SmartEnabled;
       ProcDef := 'function SmartEnabled: Boolean;';
       CallConv := ccStdCall;
     end;
-    18: begin
+    16: begin
       ProcAddr := @SmartGetMousePos;
       ProcDef := 'procedure SmartGetMousePos(out X, Y: Integer);';
       CallConv := ccStdCall;
     end;
-    19: begin
+    17: begin
       ProcAddr := @SmartHoldMouse;
       ProcDef := 'procedure SmartHoldMouse(const X, Y: Integer; const Left: Boolean); ';
       CallConv := ccStdCall;
     end;
-    20: begin
+    18: begin
       ProcAddr := @SmartReleaseMouse;
       ProcDef := 'procedure SmartReleaseMouse(const X, Y: Integer; const Left: Boolean);';
       CallConv := ccStdCall;
     end;
-    21: begin
+    19: begin
       ProcAddr := @SmartHoldMousePlus;
       ProcDef := 'procedure SmartHoldMousePlus(const X, Y, Button: Integer);';
       CallConv := ccStdCall;
     end;
-    22: begin
+    20: begin
       ProcAddr := @SmartReleaseMousePlus;
       ProcDef := 'procedure SmartReleaseMousePlus(const X, Y, Button: Integer);';
       CallConv := ccStdCall;
     end;
-    23: begin
+    21: begin
       ProcAddr := @SmartMoveMouse;
       ProcDef := 'procedure SmartMoveMouse(const X, Y: Integer);';
       CallConv := ccStdCall;
     end;
-    24: begin
+    22: begin
       ProcAddr := @SmartWindMouse;
       ProcDef := 'procedure SmartWindMouse(const X, Y: Integer);';
       CallConv := ccStdCall;
     end;
-    25: begin
+    23: begin
       ProcAddr := @SmartClickMouse;
       ProcDef := 'procedure SmartClickMouse(const X, Y: Integer; const Left: Boolean);';
       CallConv := ccStdCall;
     end;
-    26: begin
+    24: begin
       ProcAddr := @SmartClickMousePlus;
       ProcDef := 'procedure SmartClickMousePlus(const X, Y, Button: Integer);';
       CallConv := ccStdCall;
     end;
-    27: begin
+    25: begin
       ProcAddr := @SmartIsMouseButtonHeld;
       ProcDef := 'function SmartIsMouseButtonHeld(const Button: Integer): Boolean;';
       CallConv := ccStdCall;
     end;
-    28: begin
+    26: begin
       ProcAddr := @SmartSendKeys;
       ProcDef := 'procedure SmartSendKeys(const Text: AnsiString; const KeyWait, KeyModWait: Integer);';
       CallConv := ccStdCall;
     end;
-    29: begin
+    27: begin
       ProcAddr := @SmartHoldKey;
       ProcDef := 'procedure SmartHoldKey(const Code: Integer);';
       CallConv := ccStdCall;
     end;
-    30: begin
+    28: begin
       ProcAddr := @SmartReleaseKey;
       ProcDef := 'procedure SmartReleaseKey(const Code: Integer);';
       CallConv := ccStdCall;
     end;
-    31: begin
+    29: begin
       ProcAddr := @SmartIsKeyDown;
       ProcDef := 'function SmartIsKeyDown(const Code: Integer): Boolean;';
       CallConv := ccStdCall;
     end;
-    32: begin
+    30: begin
       ProcAddr := @SmartGetColor;
       ProcDef := 'function SmartGetColor(const X, Y: Integer): Integer;';
       CallConv := ccStdCall;
     end;
-    33: begin
+    31: begin
       ProcAddr := @SmartFindColor;
       ProcDef := 'function SmartFindColor(out X, Y: Integer; const Color, XS, YS, XE, YE: Integer): Boolean;';
       CallConv := ccStdCall;
     end;
-    34: begin
+    32: begin
       ProcAddr := @SmartFindColorTol;
       ProcDef := 'function SmartFindColorTol(out X, Y: Integer; const Color, XS, YS, XE, YE, Tol: Integer): Boolean;';
       CallConv := ccStdCall;
     end;
-    35: begin
+    33: begin
       ProcAddr := @SmartFindColorSpiral;
       ProcDef := 'function SmartFindColorSpiral(out X, Y: Integer; const Color, XS, YS, XE, YE: Integer): Boolean;';
       CallConv := ccStdCall;
     end;
-    36: begin
+    34: begin
       ProcAddr := @SmartFindColorSpiralTol;
       ProcDef := 'function SmartFindColorSpiralTol(out X, Y: Integer; const Color, XS, YS, XE, YE, Tol: Integer): Boolean;';
       CallConv := ccStdCall;

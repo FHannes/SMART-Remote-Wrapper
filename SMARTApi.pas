@@ -60,8 +60,6 @@ var
   SMART_Exp_PairClient: function(const PID: Integer): Boolean; cdecl;
   SMART_Exp_KillClient: function(const PID: Integer): Boolean; cdecl;
   SMART_Exp_CurrentClient: function: Integer; cdecl;
-  SMART_Exp_ImageArray: function: Integer; cdecl;
-  SMART_Exp_DebugArray: function: Integer; cdecl;
   SMART_Exp_GetRefresh: function: Integer; cdecl;
   SMART_Exp_SetRefresh: procedure(const X: Integer); cdecl;
   SMART_Exp_SetTransparentColor: procedure(const Color: Integer); cdecl;
