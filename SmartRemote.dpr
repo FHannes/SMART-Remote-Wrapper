@@ -27,6 +27,16 @@ type
     LastX, LastY: Integer; // Last coordinates the cursor was known to be at
   end;
 
+function SMART_Dir: string;
+begin
+  Result := GetCurrentDir;
+  if Exp <> nil then
+  begin
+    Result := Exp^.WorkspacePath + 'SMART' + PathDelim;
+    ForceDirectories(Result);
+  end;
+end;
+
 function InitSmartLib(const LibPath: string): Boolean; stdcall;
 begin
   if SMARTLib = 0 then
@@ -230,24 +240,25 @@ end;
 procedure _Capture(const Client: Pointer; const DC: HDC; const XS, YS, XE, YE, DestX, DestY: Integer); stdcall;
 var
   Data: PClientData;
-  Bmp: TBitmap;
   Box: TBox;
-  W, H: Integer;
+  Info: TBitmapInfo;
 begin
   if (Client <> nil) and (Exp <> nil) then
   begin
     Data := Exp^.TSCARLibraryClient_GetData(Client);
     Box := Exp^.TSCARClient_GetImageArea(Client);
-    Bmp := TBitmap.Create;
-    try
-      W := Box.X2 - Box.X1 + 1;
-      H := Box.Y2 - Box.Y1 + 1;
-      Bmp.SetSize(W, H);
-      Move(SMART_GetImageBuffer(Data^.Target)^, Bmp.ScanLine[0]^, W * H);
-      BitBlt(DC, DestX, DestY, W, H, Bmp.Canvas.Handle, 0, 0, SRCCOPY);
-    finally
-      Bmp.Free;
+    FillChar(Info, SizeOf(TBitmapInfo), 0);
+    with Info.bmiHeader do
+    begin
+      biSize := SizeOf(TBitmapInfoHeader);
+      biWidth := Box.Width;
+      biHeight := -Box.Height;
+      biPlanes := 1;
+      biBitCount := 32;
+      biCompression := BI_RGB;
     end;
+    SetDIBitsToDevice(DC, 0, 0, XE - XS + 1, YE - YS + 1, XS, YS, 0, Box.Height, SMART_GetImageBuffer(Data^.Target),
+      Info, DIB_RGB_COLORS);
   end;
 end;
 
@@ -297,13 +308,17 @@ var
   Callbacks: PLibClientCallbacks;
   Width, Height: Integer;
   InitStr: AnsiString;
+  CurDir: string;
 begin
   if Exp <> nil then
   begin
     New(Data);
     Result := Exp^.TSCARLibraryClient_Create;
     InitStr := AnsiString(IntToStr(TargetId));
+    CurDir := GetCurrentDir;
+    SetCurrentDirectory(PChar(SMART_Dir));
     Data^.Target := SMART_RequestTarget(PAnsiChar(InitStr));
+    SetCurrentDirectory(PChar(CurDir));
     SMART_GetTargetSize(Data^.Target, Width, Height);
     Exp^.TSCARLibraryClient_SetData(Result, Data);
     Box := TBox.Create(0, 0, Width - 1, Height - 1);
@@ -346,6 +361,7 @@ end;
 function SmartSpawnClient(const RemotePath, Root, Params: AnsiString; const Width, Height: Integer;
   const InitSeq, UserAgent, JVMPath: AnsiString; const MaxMem: Integer): Integer; stdcall;
 var
+  CurDir: string;
   RemotePathFixed: AnsiString;
   I, L: Integer;
 begin
@@ -357,18 +373,31 @@ begin
       if RemotePathFixed[I] = PathDelim then
         RemotePathFixed[I] := '/';
   end;
+  CurDir := GetCurrentDir;
+  SetCurrentDirectory(PChar(SMART_Dir));
   Result := SMART_Exp_SpawnClient(PAnsiChar(RemotePathFixed), PAnsiChar(Root), PAnsiChar(Params), Width, Height,
     PAnsiChar(InitSeq), PAnsiChar(UserAgent), PAnsiChar(JVMPath), MaxMem);
+  SetCurrentDirectory(PChar(CurDir));
 end;
 
 function SmartPairClient(const PID: Integer): Boolean; stdcall;
+var
+  CurDir: string;
 begin
+  CurDir := GetCurrentDir;
+  SetCurrentDirectory(PChar(SMART_Dir));
   Result := SMART_Exp_PairClient(PID);
+  SetCurrentDirectory(PChar(CurDir));
 end;
 
 function SmartKillClient(const PID: Integer): Boolean; stdcall;
+var
+  CurDir: string;
 begin
+  CurDir := GetCurrentDir;
+  SetCurrentDirectory(PChar(SMART_Dir));
   Result := SMART_Exp_KillClient(PID);
+  SetCurrentDirectory(PChar(CurDir));
 end;
 
 function SmartCurrentClient: Integer; stdcall;
