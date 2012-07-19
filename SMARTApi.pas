@@ -68,25 +68,6 @@ var
   SMART_Exp_SetEnabled: procedure(const Enabled: Boolean); cdecl;
   SMART_Exp_Active: function: Boolean; cdecl;
   SMART_Exp_Enabled: function: Boolean; cdecl;
-  SMART_Exp_GetMousePos: procedure(out X, Y: Integer); cdecl;
-  SMART_Exp_HoldMouse: procedure(const X, Y: Integer; const Left: Boolean); cdecl;
-  SMART_Exp_ReleaseMouse: procedure(const X, Y: Integer; const Left: Boolean); cdecl;
-  SMART_Exp_HoldMousePlus: procedure(const X, Y, Button: Integer); cdecl;
-  SMART_Exp_ReleaseMousePlus: procedure(const X, Y, Button: Integer); cdecl;
-  SMART_Exp_MoveMouse: procedure(const X, Y: Integer); cdecl;
-  SMART_Exp_WindMouse: procedure(const X, Y: Integer); cdecl;
-  SMART_Exp_ClickMouse: procedure(const X, Y: Integer; const Left: Boolean); cdecl;
-  SMART_Exp_ClickMousePlus: procedure(const X, Y, Button: Integer); cdecl;
-  SMART_Exp_IsMouseButtonHeld: function(const Button: Integer): Boolean; cdecl;
-  SMART_Exp_SendKeys: procedure(const Text: PAnsiChar; const KeyWait, KeyModWait: Integer); cdecl;
-  SMART_Exp_HoldKey: procedure(const Code: Integer); cdecl;
-  SMART_Exp_ReleaseKey: procedure(const Code: Integer); cdecl;
-  SMART_Exp_IsKeyDown: function(const Code: Integer): Boolean; cdecl;
-  SMART_Exp_GetColor: function(const X, Y: Integer): Integer; cdecl;
-  SMART_Exp_FindColor: function(out X, Y: Integer; const Color, XS, YS, XE, YE: Integer): Boolean; cdecl;
-  SMART_Exp_FindColorTol: function(out X, Y: Integer; const Color, XS, YS, XE, YE, Tol: Integer): Boolean; cdecl;
-  SMART_Exp_FindColorSpiral: function(var X, Y: Integer; const Color, XS, YS, XE, YE: Integer): Boolean; cdecl;
-  SMART_Exp_FindColorSpiralTol: function(var X, Y: Integer; const Color, XS, YS, XE, YE, Tol: Integer): Boolean; cdecl;
 
 implementation
 

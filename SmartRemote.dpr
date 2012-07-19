@@ -72,25 +72,6 @@ begin
     SMART_Exp_SetEnabled := GetProcAddress(SMARTLib, 'exp_setEnabled');
     SMART_Exp_Active := GetProcAddress(SMARTLib, 'exp_isActive');
     SMART_Exp_Enabled := GetProcAddress(SMARTLib, 'exp_isBlocking');
-    SMART_Exp_GetMousePos := GetProcAddress(SMARTLib, 'exp_getMousePos');
-    SMART_Exp_HoldMouse := GetProcAddress(SMARTLib, 'exp_holdMouse');
-    SMART_Exp_ReleaseMouse := GetProcAddress(SMARTLib, 'exp_releaseMouse');
-    SMART_Exp_HoldMousePlus := GetProcAddress(SMARTLib, 'exp_holdMousePlus');
-    SMART_Exp_ReleaseMousePlus := GetProcAddress(SMARTLib, 'exp_releaseMousePlus');
-    SMART_Exp_MoveMouse := GetProcAddress(SMARTLib, 'exp_moveMouse');
-    SMART_Exp_WindMouse := GetProcAddress(SMARTLib, 'exp_windMouse');
-    SMART_Exp_ClickMouse := GetProcAddress(SMARTLib, 'exp_clickMouse');
-    SMART_Exp_ClickMousePlus := GetProcAddress(SMARTLib, 'exp_clickMousePlus');
-    SMART_Exp_IsMouseButtonHeld := GetProcAddress(SMARTLib, 'exp_isMouseButtonHeld');
-    SMART_Exp_SendKeys := GetProcAddress(SMARTLib, 'exp_sendKeys');
-    SMART_Exp_HoldKey := GetProcAddress(SMARTLib, 'exp_holdKey');
-    SMART_Exp_ReleaseKey := GetProcAddress(SMARTLib, 'exp_releaseKey');
-    SMART_Exp_IsKeyDown := GetProcAddress(SMARTLib, 'exp_isKeyDown');
-    SMART_Exp_GetColor := GetProcAddress(SMARTLib, 'exp_getColor');
-    SMART_Exp_FindColor := GetProcAddress(SMARTLib, 'exp_findColor');
-    SMART_Exp_FindColorTol := GetProcAddress(SMARTLib, 'exp_findColorTol');
-    SMART_Exp_FindColorSpiral := GetProcAddress(SMARTLib, 'exp_findColorSpiral');
-    SMART_Exp_FindColorSpiralTol := GetProcAddress(SMARTLib, 'exp_findColorSpiralTol');
   end;
 end;
 
@@ -278,10 +259,6 @@ begin
     Result := -1;
 end;
 
-procedure _Activate(const Client: Pointer); stdcall;
-begin
-end;
-
 procedure _Destroy(const Client: Pointer); stdcall;
 var
   Data: PClientData;
@@ -291,6 +268,20 @@ begin
     Data := Exp^.TSCARLibraryClient_GetData(Client);
     SMART_ReleaseTarget(Data^.Target);
     Dispose(Data);
+  end;
+end;
+
+procedure _TypeText(const Client: Pointer; const Text: string; const PressIval, PressIvalRnd, ModIval, ModIvalRnd,
+  CharIval, CharIvalRnd: Integer; const UseNumpad: Boolean); stdcall;
+var
+  Data: PClientData;
+  Str: AnsiString;
+begin
+  if (Client <> nil) and (Exp <> nil) then
+  begin
+    Data := Exp^.TSCARLibraryClient_GetData(Client);
+    Str := Text;
+    SMART_TypeText(Data^.Target, PAnsiChar(Str), (PressIval + PressIvalRnd) div 2, (ModIval + ModIvalRnd) div 2);
   end;
 end;
 
@@ -338,9 +329,9 @@ begin
       GetToggleKeyState := @_GetKeyState;
       Capture := @_Capture;
       GetPixel := @_GetPixel;
-      Activate := @_Activate;
       Clone := @_Clone;
       Destroy := @_Destroy;
+      TypeText := @_TypeText;
     end;
   end else
     Result := nil;
@@ -448,101 +439,6 @@ begin
   Result := SMART_Exp_Enabled;
 end;
 
-procedure SmartGetMousePos(out X, Y: Integer); stdcall;
-begin
-  SMART_Exp_GetMousePos(X, Y);
-end;
-
-procedure SmartHoldMouse(const X, Y: Integer; const Left: Boolean); stdcall;
-begin
-  SMART_Exp_HoldMouse(X, Y, Left);
-end;
-
-procedure SmartReleaseMouse(const X, Y: Integer; const Left: Boolean); stdcall;
-begin
-  SMART_Exp_ReleaseMouse(X, Y, Left);
-end;
-
-procedure SmartHoldMousePlus(const X, Y, Button: Integer); stdcall;
-begin
-  SMART_Exp_HoldMousePlus(X, Y, Button);
-end;
-
-procedure SmartReleaseMousePlus(const X, Y, Button: Integer); stdcall;
-begin
-  SMART_Exp_ReleaseMousePlus(X, Y, Button);
-end;
-
-procedure SmartMoveMouse(const X, Y: Integer); stdcall;
-begin
-  SMART_Exp_MoveMouse(X, Y);
-end;
-
-procedure SmartWindMouse(const X, Y: Integer); stdcall;
-begin
-  SMART_Exp_WindMouse(X, Y);
-end;
-
-procedure SmartClickMouse(const X, Y: Integer; const Left: Boolean); stdcall;
-begin
-  SMART_Exp_ClickMouse(X, Y, Left);
-end;
-
-procedure SmartClickMousePlus(const X, Y, Button: Integer); stdcall;
-begin
-  SMART_Exp_ClickMousePlus(X, Y, Button);
-end;
-
-function SmartIsMouseButtonHeld(const Button: Integer): Boolean; stdcall;
-begin
-  Result := SMART_Exp_IsMouseButtonHeld(Button);
-end;
-
-procedure SmartSendKeys(const Text: AnsiString; const KeyWait, KeyModWait: Integer); stdcall;
-begin
-  SMART_Exp_SendKeys(PAnsiChar(Text), KeyWait, KeyModWait);
-end;
-
-procedure SmartHoldKey(const Code: Integer); stdcall;
-begin
-  SMART_Exp_HoldKey(Code);
-end;
-
-procedure SmartReleaseKey(const Code: Integer); stdcall;
-begin
-  SMART_Exp_ReleaseKey(Code);
-end;
-
-function SmartIsKeyDown(const Code: Integer): Boolean; stdcall;
-begin
-  Result := SMART_Exp_IsKeyDown(Code);
-end;
-
-function SmartGetColor(const X, Y: Integer): Integer; stdcall;
-begin
-  Result := SMART_Exp_GetColor(X, Y);
-end;
-
-function SmartFindColor(out X, Y: Integer; const Color, XS, YS, XE, YE: Integer): Boolean; stdcall;
-begin
-  Result := SMART_Exp_FindColor(X, Y, Color, XS, YS, XE, YE);
-end;
-
-function SmartFindColorTol(out X, Y: Integer; const Color, XS, YS, XE, YE, Tol: Integer): Boolean; stdcall;
-begin
-  Result := SMART_Exp_FindColorTol(X, Y, Color, XS, YS, XE, YE, Tol);
-end;
-
-function SmartFindColorSpiral(out X, Y: Integer; const Color, XS, YS, XE, YE: Integer): Boolean; stdcall;
-begin
-  Result := SMART_Exp_FindColorSpiral(X, Y, Color, XS, YS, XE, YE);
-end;
-
-function SmartFindColorSpiralTol(out X, Y: Integer; const Color, XS, YS, XE, YE, Tol: Integer): Boolean; stdcall;
-begin
-  Result := SMART_Exp_FindColorSpiralTol(X, Y, Color, XS, YS, XE, YE, Tol);
-end;
-
 procedure OnLoadLib(const SCARExports: PExports); stdcall;
 begin
   Exp := SCARExports;
@@ -556,7 +452,7 @@ end;
 
 function OnGetFuncCount: Integer; stdcall;
 begin
-  Result := 35;
+  Result := 16;
 end;
 
 function OnGetFuncInfo(const Idx: Integer; out ProcAddr: Pointer; out ProcDef: PAnsiChar;
@@ -642,101 +538,6 @@ begin
     15: begin
       ProcAddr := @SmartEnabled;
       ProcDef := 'function SmartEnabled: Boolean;';
-      CallConv := ccStdCall;
-    end;
-    16: begin
-      ProcAddr := @SmartGetMousePos;
-      ProcDef := 'procedure SmartGetMousePos(out X, Y: Integer);';
-      CallConv := ccStdCall;
-    end;
-    17: begin
-      ProcAddr := @SmartHoldMouse;
-      ProcDef := 'procedure SmartHoldMouse(const X, Y: Integer; const Left: Boolean); ';
-      CallConv := ccStdCall;
-    end;
-    18: begin
-      ProcAddr := @SmartReleaseMouse;
-      ProcDef := 'procedure SmartReleaseMouse(const X, Y: Integer; const Left: Boolean);';
-      CallConv := ccStdCall;
-    end;
-    19: begin
-      ProcAddr := @SmartHoldMousePlus;
-      ProcDef := 'procedure SmartHoldMousePlus(const X, Y, Button: Integer);';
-      CallConv := ccStdCall;
-    end;
-    20: begin
-      ProcAddr := @SmartReleaseMousePlus;
-      ProcDef := 'procedure SmartReleaseMousePlus(const X, Y, Button: Integer);';
-      CallConv := ccStdCall;
-    end;
-    21: begin
-      ProcAddr := @SmartMoveMouse;
-      ProcDef := 'procedure SmartMoveMouse(const X, Y: Integer);';
-      CallConv := ccStdCall;
-    end;
-    22: begin
-      ProcAddr := @SmartWindMouse;
-      ProcDef := 'procedure SmartWindMouse(const X, Y: Integer);';
-      CallConv := ccStdCall;
-    end;
-    23: begin
-      ProcAddr := @SmartClickMouse;
-      ProcDef := 'procedure SmartClickMouse(const X, Y: Integer; const Left: Boolean);';
-      CallConv := ccStdCall;
-    end;
-    24: begin
-      ProcAddr := @SmartClickMousePlus;
-      ProcDef := 'procedure SmartClickMousePlus(const X, Y, Button: Integer);';
-      CallConv := ccStdCall;
-    end;
-    25: begin
-      ProcAddr := @SmartIsMouseButtonHeld;
-      ProcDef := 'function SmartIsMouseButtonHeld(const Button: Integer): Boolean;';
-      CallConv := ccStdCall;
-    end;
-    26: begin
-      ProcAddr := @SmartSendKeys;
-      ProcDef := 'procedure SmartSendKeys(const Text: AnsiString; const KeyWait, KeyModWait: Integer);';
-      CallConv := ccStdCall;
-    end;
-    27: begin
-      ProcAddr := @SmartHoldKey;
-      ProcDef := 'procedure SmartHoldKey(const Code: Integer);';
-      CallConv := ccStdCall;
-    end;
-    28: begin
-      ProcAddr := @SmartReleaseKey;
-      ProcDef := 'procedure SmartReleaseKey(const Code: Integer);';
-      CallConv := ccStdCall;
-    end;
-    29: begin
-      ProcAddr := @SmartIsKeyDown;
-      ProcDef := 'function SmartIsKeyDown(const Code: Integer): Boolean;';
-      CallConv := ccStdCall;
-    end;
-    30: begin
-      ProcAddr := @SmartGetColor;
-      ProcDef := 'function SmartGetColor(const X, Y: Integer): Integer;';
-      CallConv := ccStdCall;
-    end;
-    31: begin
-      ProcAddr := @SmartFindColor;
-      ProcDef := 'function SmartFindColor(out X, Y: Integer; const Color, XS, YS, XE, YE: Integer): Boolean;';
-      CallConv := ccStdCall;
-    end;
-    32: begin
-      ProcAddr := @SmartFindColorTol;
-      ProcDef := 'function SmartFindColorTol(out X, Y: Integer; const Color, XS, YS, XE, YE, Tol: Integer): Boolean;';
-      CallConv := ccStdCall;
-    end;
-    33: begin
-      ProcAddr := @SmartFindColorSpiral;
-      ProcDef := 'function SmartFindColorSpiral(out X, Y: Integer; const Color, XS, YS, XE, YE: Integer): Boolean;';
-      CallConv := ccStdCall;
-    end;
-    34: begin
-      ProcAddr := @SmartFindColorSpiralTol;
-      ProcDef := 'function SmartFindColorSpiralTol(out X, Y: Integer; const Color, XS, YS, XE, YE, Tol: Integer): Boolean;';
       CallConv := ccStdCall;
     end;
     else Result := -1;

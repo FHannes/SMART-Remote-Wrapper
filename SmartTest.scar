@@ -16,7 +16,7 @@ begin
         Result := SmartClientID(i); 
         if SmartPairClient(Result) then 
         begin                  
-          SetClient(CreateSMARTClient(Result));
+          SetClient(CreateSmartClient(Result));
           Exit;
         end;
       end;
@@ -25,10 +25,10 @@ begin
   Page := Between('<iframe id="game" src="', '"', GetPage('http://www.runescape.com/game.ws?j=1'));
   Params := Explode(',', Page);
   Result := SmartSpawnClient(ScriptPath, Params[0], ',' + Params[1], 765, 503, 's', '', '', -1);
-  SetClient(CreateSMARTClient(Result));
+  SetClient(CreateSmartClient(Result));
 end;
 
 begin  
-  if InitSMARTLib(ScriptPath + 'libsmartremote32.dll') then
+  if InitSmartLib(ScriptPath + 'libsmartremote32.dll') then
     InitSmart(False);
 end.

@@ -59,6 +59,8 @@ type
     Activate: procedure(const Client: Pointer); stdcall;
     Clone: function(const Client: Pointer; const Callbacks: PLibClientCallbacks): Pointer; stdcall;
     Destroy: procedure(const Client: Pointer); stdcall;
+    TypeText: procedure(const Client: Pointer; const Text: string; const PressIval, PressIvalRnd, ModIval, ModIvalRnd,
+      CharIval, CharIvalRnd: Integer; const UseNumpad: Boolean); stdcall;
   end;
 
   PBox = ^TBox;
