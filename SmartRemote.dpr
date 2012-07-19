@@ -145,7 +145,7 @@ begin
     Data := Exp^.TSCARLibraryClient_GetData(Client);
     case Button of
       mbLeft: SMART_MouseBtnDown(Data^.Target, Data^.LastX, Data^.LastY, 1);
-      mbRight: SMART_MouseBtnDown(Data^.Target, Data^.LastX, Data^.LastY, 0);
+      mbRight: SMART_MouseBtnDown(Data^.Target, Data^.LastX, Data^.LastY, 3);
       mbMiddle: SMART_MouseBtnDown(Data^.Target, Data^.LastX, Data^.LastY, 2);
     end;
   end;
@@ -160,7 +160,7 @@ begin
     Data := Exp^.TSCARLibraryClient_GetData(Client);
     case Button of
       mbLeft: SMART_MouseBtnUp(Data^.Target, Data^.LastX, Data^.LastY, 1);
-      mbRight: SMART_MouseBtnUp(Data^.Target, Data^.LastX, Data^.LastY, 0);
+      mbRight: SMART_MouseBtnUp(Data^.Target, Data^.LastX, Data^.LastY, 3);
       mbMiddle: SMART_MouseBtnUp(Data^.Target, Data^.LastX, Data^.LastY, 2);
     end;
   end;
@@ -176,7 +176,7 @@ begin
     Data := Exp^.TSCARLibraryClient_GetData(Client);
     case Button of
       mbLeft: Result := SMART_GetMouseBtnState(Data^.Target, 1);
-      mbRight: Result := SMART_GetMouseBtnState(Data^.Target, 0);
+      mbRight: Result := SMART_GetMouseBtnState(Data^.Target, 3);
       mbMiddle: Result := SMART_GetMouseBtnState(Data^.Target, 2);
     end;
   end;
@@ -352,8 +352,13 @@ begin
 end;
 
 function SmartGetClients(const OnlyUnpaired: Boolean): Integer; stdcall;
+var
+  CurDir: string;
 begin
+  CurDir := GetCurrentDir;
+  SetCurrentDirectory(PChar(SMART_Dir));
   Result := SMART_Exp_GetClients(OnlyUnpaired);
+  SetCurrentDirectory(PChar(CurDir));
 end;
 
 function SmartSpawnClient(const RemotePath, Root, Params: AnsiString; const Width, Height: Integer;
