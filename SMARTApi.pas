@@ -10,9 +10,11 @@ interface
 //**
 
 uses
-  WinApi.WinSock, SCARLib;
+  SCARLib;
 
 type
+  TSocket = IntPtr; // Replace with WinApi.WinSock namespace for socket access
+
   PShmData = ^TShmData;
   TShmData = packed record
     Id: Integer;

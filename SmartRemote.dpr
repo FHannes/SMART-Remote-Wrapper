@@ -5,6 +5,11 @@ library SmartRemote;
 // License: http://creativecommons.org/licenses/by/3.0/
 //**
 
+{$IF CompilerVersion >= 21.0}
+  {$WEAKLINKRTTI ON}
+  {$RTTI EXPLICIT METHODS([]) PROPERTIES([]) FIELDS([])}
+{$IFEND}
+
 uses
   FastShareMem in 'FastShareMem.pas',
   SCARLib in 'SCARLib.pas',
@@ -14,8 +19,7 @@ uses
   System.Win.Registry,
   System.StrUtils,
   WinApi.Windows,
-  Vcl.Controls,
-  Vcl.Graphics;
+  Vcl.Controls;
 
 var
   SMARTLib: THandle = 0;
@@ -280,7 +284,7 @@ begin
   if (Client <> nil) and (Exp <> nil) then
   begin
     Data := Exp^.TSCARLibraryClient_GetData(Client);
-    Str := Text;
+    Str := AnsiString(Text);
     SMART_TypeText(Data^.Target, PAnsiChar(Str), (PressIval + PressIvalRnd) div 2, (ModIval + ModIvalRnd) div 2);
   end;
 end;
