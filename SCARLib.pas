@@ -15,20 +15,11 @@ interface
 // DO NOT MODIFY THIS UNIT!
 
 uses
-  WinApi.Windows, Vcl.Graphics, Vcl.Controls;
+  Vcl_Rtl,
+  WinApi.Windows;
 
 type
   TCallConv = (ccRegister, ccPascal, ccCdecl, ccStdCall, ccSafeCall);
-
-  TFunctionExport = record
-    Ref: Pointer;
-    Def: AnsiString;
-    Conv: TCallConv;
-  end;
-
-  TTypeExport = record
-    Name, Def: AnsiString;
-  end;
 
   PSCARBmpData = ^TSCARBmpData;
   TSCARBmpData = packed record
@@ -57,7 +48,7 @@ type
     Capture: procedure(const Client: Pointer; const DC: HDC; const XS, YS, XE, YE, DestX, DestY: Integer); stdcall;
     GetPixel: function(const Client: Pointer; const X, Y: Integer): Integer; stdcall;
     Activate: procedure(const Client: Pointer); stdcall;
-    Clone: function(const Client: Pointer; const Callbacks: PLibClientCallbacks): Pointer; stdcall;
+    Clone: function(const Client: Pointer): Pointer; stdcall;
     Destroy: procedure(const Client: Pointer); stdcall;
     TypeText: procedure(const Client: Pointer; const Text: string; const PressIval, PressIvalRnd, ModIval, ModIvalRnd,
       CharIval, CharIvalRnd: Integer; const UseNumpad: Boolean); stdcall;
@@ -70,8 +61,7 @@ type
     function GetWidth: Integer;
     function GetHeight: Integer;
   public
-    constructor Create(const X1, Y1, X2, Y2: Integer); overload;
-    constructor Create(const Rect: TRect); overload;
+    constructor Create(const X1, Y1, X2, Y2: Integer);
     property Width: Integer read GetWidth;
     property Height: Integer read GetHeight;
   end;
@@ -170,14 +160,6 @@ begin
   Self.Y1 := Y1;
   Self.X2 := X2;
   Self.Y2 := Y2;
-end;
-
-constructor TBox.Create(const Rect: TRect);
-begin
-  Self.X1 := Rect.Left;
-  Self.Y1 := Rect.Top;
-  Self.X2 := Rect.Right - 1;
-  Self.Y2 := Rect.Bottom - 1;
 end;
 
 function TBox.GetHeight: Integer;

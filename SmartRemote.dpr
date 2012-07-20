@@ -14,12 +14,8 @@ uses
   FastShareMem in 'FastShareMem.pas',
   SCARLib in 'SCARLib.pas',
   SMARTApi in 'SMARTApi.pas',
-  System.SysUtils,
-  System.Classes,
-  System.Win.Registry,
-  System.StrUtils,
-  WinApi.Windows,
-  Vcl.Controls;
+  Vcl_Rtl in 'Vcl_Rtl.pas',
+  WinApi.Windows;
 
 var
   SMARTLib: THandle = 0;
@@ -33,11 +29,11 @@ type
 
 function SMART_Dir: string;
 begin
-  Result := GetCurrentDir;
+  GetDir(0, Result);
   if Exp <> nil then
   begin
     Result := Exp^.WorkspacePath + 'SMART' + PathDelim;
-    ForceDirectories(Result);
+    CreateDirectory(PChar(Result), nil);
   end;
 end;
 
@@ -76,22 +72,6 @@ begin
     SMART_Exp_SetEnabled := GetProcAddress(SMARTLib, 'exp_setEnabled');
     SMART_Exp_Active := GetProcAddress(SMARTLib, 'exp_isActive');
     SMART_Exp_Enabled := GetProcAddress(SMARTLib, 'exp_isBlocking');
-  end;
-end;
-
-function GetJVMPath: string; stdcall;
-begin
-  Result := '';
-  with TRegistry.Create do
-  try
-    Access := KEY_READ;
-    RootKey := HKEY_LOCAL_MACHINE;
-    if OpenKey('Software\JavaSoft\Java Runtime Environment', False) then
-      if ValueExists('CurrentVersion') then
-        if OpenKey(ReadString('CurrentVersion'), False) then
-          Result := ReadString('RuntimeLib');
-  finally
-    Free;
   end;
 end;
 
@@ -289,9 +269,9 @@ begin
   end;
 end;
 
-procedure _Clone(const Client: Pointer; const Callbacks: PLibClientCallbacks); stdcall;
+function _Clone(const Client: Pointer): Pointer; stdcall;
 begin
-  raise Exception.Create('Can''t clone this!');
+  // TODO: Create new object controlling the same or new SMART instance
 end;
 
 function CreateSmartClient(const TargetId: Integer): TSCARClient; stdcall;
@@ -307,8 +287,8 @@ begin
   begin
     New(Data);
     Result := Exp^.TSCARLibraryClient_Create;
-    InitStr := AnsiString(IntToStr(TargetId));
-    CurDir := GetCurrentDir;
+    Str(TargetId, InitStr);
+    GetDir(0, CurDir);
     SetCurrentDirectory(PChar(SMART_Dir));
     Data^.Target := SMART_RequestTarget(PAnsiChar(InitStr));
     SetCurrentDirectory(PChar(CurDir));
@@ -350,7 +330,7 @@ function SmartGetClients(const OnlyUnpaired: Boolean): Integer; stdcall;
 var
   CurDir: string;
 begin
-  CurDir := GetCurrentDir;
+  GetDir(0, CurDir);
   SetCurrentDirectory(PChar(SMART_Dir));
   Result := SMART_Exp_GetClients(OnlyUnpaired);
   SetCurrentDirectory(PChar(CurDir));
@@ -371,7 +351,7 @@ begin
       if RemotePathFixed[I] = PathDelim then
         RemotePathFixed[I] := '/';
   end;
-  CurDir := GetCurrentDir;
+  GetDir(0, CurDir);
   SetCurrentDirectory(PChar(SMART_Dir));
   Result := SMART_Exp_SpawnClient(PAnsiChar(RemotePathFixed), PAnsiChar(Root), PAnsiChar(Params), Width, Height,
     PAnsiChar(InitSeq), PAnsiChar(UserAgent), PAnsiChar(JVMPath), MaxMem);
@@ -382,7 +362,7 @@ function SmartPairClient(const PID: Integer): Boolean; stdcall;
 var
   CurDir: string;
 begin
-  CurDir := GetCurrentDir;
+  GetDir(0, CurDir);
   SetCurrentDirectory(PChar(SMART_Dir));
   Result := SMART_Exp_PairClient(PID);
   SetCurrentDirectory(PChar(CurDir));
@@ -392,7 +372,7 @@ function SmartKillClient(const PID: Integer): Boolean; stdcall;
 var
   CurDir: string;
 begin
-  CurDir := GetCurrentDir;
+  GetDir(0, CurDir);
   SetCurrentDirectory(PChar(SMART_Dir));
   Result := SMART_Exp_KillClient(PID);
   SetCurrentDirectory(PChar(CurDir));
@@ -456,7 +436,7 @@ end;
 
 function OnGetFuncCount: Integer; stdcall;
 begin
-  Result := 16;
+  Result := 15;
 end;
 
 function OnGetFuncInfo(const Idx: Integer; out ProcAddr: Pointer; out ProcDef: PAnsiChar;
@@ -465,81 +445,76 @@ begin
   Result := Idx;
   case Idx of
     0: begin
-      ProcAddr := @GetJVMPath;
-      ProcDef := 'function GetJVMPath: string;';
-      CallConv := ccStdCall;
-    end;
-    1: begin
       ProcAddr := @InitSmartLib;
       ProcDef := 'function InitSmartLib(const LibPath: string): Boolean;';
       CallConv := ccStdCall;
     end;
-    2: begin
+    1: begin
       ProcAddr := @CreateSmartClient;
       ProcDef := 'function CreateSmartClient(const TargetId: Integer): TSCARClient;';
       CallConv := ccStdCall;
     end;
-    3: begin
+    2: begin
       ProcAddr := @SmartGetClients;
       ProcDef := 'function SmartGetClients(const OnlyUnpaired: Boolean): Integer;';
       CallConv := ccStdCall;
     end;
-    4: begin
+    3: begin
       ProcAddr := @SmartClientID;
       ProcDef := 'function SmartClientID(const Idx: Integer): Integer;';
       CallConv := ccStdCall;
     end;
-    5: begin
+    4: begin
       ProcAddr := @SmartSpawnClient;
       ProcDef := 'function SmartSpawnClient(const RemotePath, Root, Params: AnsiString; const Width, Height: Integer; const InitSeq, UserAgent, JVMPath: AnsiString; const MaxMem: Integer): Integer;';
       CallConv := ccStdCall;
     end;
-    6: begin
+    5: begin
       ProcAddr := @SmartPairClient;
       ProcDef := 'function SmartPairClient(const PID: Integer): Boolean;';
       CallConv := ccStdCall;
     end;
-    7: begin
+    6: begin
       ProcAddr := @SmartCurrentClient;
       ProcDef := 'function SmartCurrentClient: Integer;';
       CallConv := ccStdCall;
     end;
-    8: begin
+    7: begin
       ProcAddr := @SmartGetRefresh;
       ProcDef := 'function SmartGetRefresh: Integer;';
       CallConv := ccStdCall;
     end;
-    9: begin
+    8: begin
       ProcAddr := @SmartSetRefresh;
       ProcDef := 'procedure SmartSetRefresh(const X: Integer);';
       CallConv := ccStdCall;
     end;
-    10: begin
+    9: begin
       ProcAddr := @SmartSetTransparentColor;
       ProcDef := 'procedure SmartSetTransparentColor(const Color: Integer);';
       CallConv := ccStdCall;
     end;
-    11: begin
+    10: begin
       ProcAddr := @SmartSetDebug;
       ProcDef := 'procedure SmartSetDebug(const Enabled: Boolean);';
       CallConv := ccStdCall;
     end;
-    12: begin
+    11: begin
       ProcAddr := @SmartSetGraphics;
       ProcDef := 'procedure SmartSetGraphics(const Enabled: Boolean);';
       CallConv := ccStdCall;
     end;
-    13: begin
+    12: begin
       ProcAddr := @SmartSetEnabled;
       ProcDef := 'procedure SmartSetEnabled(const Enabled: Boolean);';
       CallConv := ccStdCall;
     end;
-    14: begin
+    13: begin
       ProcAddr := @SmartActive;
       ProcDef := 'function SmartActive: Boolean;';
       CallConv := ccStdCall;
     end;
-    15: begin
+    14: begin
       ProcAddr := @SmartEnabled;
       ProcDef := 'function SmartEnabled: Boolean;';
       CallConv := ccStdCall;
