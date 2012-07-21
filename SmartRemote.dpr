@@ -203,25 +203,25 @@ end;
 procedure _Capture(const Client: Pointer; const DC: HDC; const XS, YS, XE, YE, DestX, DestY: Integer); stdcall;
 var
   Data: PClientData;
-  Box: TBox;
+  W, H: Integer;
   Info: TBitmapInfo;
 begin
   if (Client <> nil) and (Exp <> nil) then
   begin
     Data := Exp^.TSCARLibraryClient_GetData(Client);
-    Box := Exp^.TSCARClient_GetImageArea(Client);
+      SMART_GetTargetSize(Data^.Target, W, H);
     FillChar(Info, SizeOf(TBitmapInfo), 0);
     with Info.bmiHeader do
     begin
       biSize := SizeOf(TBitmapInfoHeader);
-      biWidth := Box.Width;
-      biHeight := -Box.Height;
+      biWidth := W;
+      biHeight := -H;
       biPlanes := 1;
       biBitCount := 32;
       biCompression := BI_RGB;
     end;
-    SetDIBitsToDevice(DC, 0, 0, XE - XS + 1, YE - YS + 1, XS, YS, 0, Box.Height, SMART_GetImageBuffer(Data^.Target),
-      Info, DIB_RGB_COLORS);
+    SetDIBitsToDevice(DC, 0, 0, XE - XS + 1, YE - YS + 1, XS, H - YE - 1, 0, H, SMART_GetImageBuffer(Data^.Target), Info,
+      DIB_RGB_COLORS);
   end;
 end;
 
@@ -275,6 +275,7 @@ function _Exists(const Client: Pointer): Boolean; stdcall;
 var
   Data: PClientData;
 begin
+  Result := False;
   if (Client <> nil) and (Exp <> nil) then
   begin
     Data := Exp^.TSCARLibraryClient_GetData(Client);
@@ -288,6 +289,7 @@ var
   W, H: Integer;
   Box: TBox;
 begin
+  Result := False;
   if (Client <> nil) and (Exp <> nil) then
   begin
     Data := Exp^.TSCARLibraryClient_GetData(Client);
