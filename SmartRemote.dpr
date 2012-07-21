@@ -234,11 +234,15 @@ var
 begin
   if (Client <> nil) and (Exp <> nil) then
   begin
-    Data := Exp^.TSCARLibraryClient_GetData(Client);
-    Box := Exp^.TSCARClient_GetImageArea(Client);
-    W := Box.X2 - Box.X1 + 1;
-    Col := SMART_GetImageBuffer(Data^.Target)^[W * Y + X];
-    Result := Col.R or Col.G shl 8 or Col.B shl 16;
+    try
+      Data := Exp^.TSCARLibraryClient_GetData(Client);
+      Box := Exp^.TSCARClient_GetImageArea(Client);
+      W := Box.X2 - Box.X1 + 1;
+      Col := SMART_GetImageBuffer(Data^.Target)^[W * Y + X];
+      Result := Col.R or Col.G shl 8 or Col.B shl 16;
+    except
+      Result := -1;
+    end;
   end else
     Result := -1;
 end;
@@ -269,9 +273,76 @@ begin
   end;
 end;
 
-function _Clone(const Client: Pointer): Pointer; stdcall;
+function _Exists(const Client: Pointer): Boolean; stdcall;
+var
+  Data: PClientData;
 begin
-  // TODO: Create new object controlling the same or new SMART instance
+  if (Client <> nil) and (Exp <> nil) then
+  begin
+    Data := Exp^.TSCARLibraryClient_GetData(Client);
+    Result := (Data <> nil) and (Data^.Target <> nil);
+  end;
+end;
+
+function _Update(const Client: Pointer): Boolean; stdcall;
+var
+  Data: PClientData;
+  W, H: Integer;
+  Box: TBox;
+begin
+  if (Client <> nil) and (Exp <> nil) then
+  begin
+    Data := Exp^.TSCARLibraryClient_GetData(Client);
+    if (Data <> nil) and (Data^.Target <> nil) then
+    begin
+      SMART_GetTargetSize(Data^.Target, W, H);
+      Box := TBox.Create(W, H);
+      Exp^.TSCARClient_SetImageArea(Client, Box);
+      Exp^.TSCARClient_SetInputArea(Client, Box);
+    end;
+  end;
+end;
+
+function _Clone(const Client: Pointer): Pointer; stdcall;
+var
+  Callbacks: PLibClientCallbacks;
+  Data, NewData: PClientData;
+begin
+  if (Client <> nil) and (Exp <> nil) then
+  begin
+    Result := Exp^.TSCARLibraryClient_Create;
+    Callbacks := Exp^.TSCARLibraryClient_GetCallbacks(Result);
+    with Callbacks^ do
+    begin
+      SetCursorPos := @_SetCursorPos;
+      GetCursorPos := @_GetCursorPos;
+      MouseBtnDown := @_MouseBtnDown;
+      MouseBtnUp := @_MouseBtnUp;
+      VKeyDown := @_VKeyDown;
+      VKeyUp := @_VKeyUp;
+      KeyDown := @_KeyDown;
+      KeyUp := @_KeyUp;
+      GetKeyState := @_GetKeyState;
+      GetCurrentKeyState := @_GetKeyState;
+      GetToggleKeyState := @_GetKeyState;
+      Capture := @_Capture;
+      GetPixel := @_GetPixel;
+      Clone := @_Clone;
+      Destroy := @_Destroy;
+      TypeText := @_TypeText;
+      Exists := @_Exists;
+      Update := @_Update;
+    end;
+    Exp^.TSCARClient_SetInputArea(Result, Exp^.TSCARClient_GetInputArea(Client));
+    Exp^.TSCARClient_SetImageArea(Result, Exp^.TSCARClient_GetImageArea(Client));
+    Data := Exp^.TSCARLibraryClient_GetData(Client);
+    New(NewData);
+    NewData^.Target := Data^.Target;
+    NewData^.LastX := Data^.LastX;
+    NewData^.LastY := Data^.LastY;
+    Exp^.TSCARLibraryClient_SetData(Result, NewData);
+  end else
+    Result := nil;
 end;
 
 function CreateSmartClient(const TargetId: Integer): TSCARClient; stdcall;
@@ -316,6 +387,8 @@ begin
       Clone := @_Clone;
       Destroy := @_Destroy;
       TypeText := @_TypeText;
+      Exists := @_Exists;
+      Update := @_Update;
     end;
   end else
     Result := nil;

@@ -52,6 +52,8 @@ type
     Destroy: procedure(const Client: Pointer); stdcall;
     TypeText: procedure(const Client: Pointer; const Text: string; const PressIval, PressIvalRnd, ModIval, ModIvalRnd,
       CharIval, CharIvalRnd: Integer; const UseNumpad: Boolean); stdcall;
+    Exists: function(const Client: Pointer): Boolean; stdcall;
+    Update: function(const Client: Pointer): Boolean; stdcall;
   end;
 
   PBox = ^TBox;
@@ -61,7 +63,8 @@ type
     function GetWidth: Integer;
     function GetHeight: Integer;
   public
-    constructor Create(const X1, Y1, X2, Y2: Integer);
+    constructor Create(const X1, Y1, X2, Y2: Integer); overload;
+    constructor Create(const Width, Height: Integer); overload;
     property Width: Integer read GetWidth;
     property Height: Integer read GetHeight;
   end;
@@ -160,6 +163,14 @@ begin
   Self.Y1 := Y1;
   Self.X2 := X2;
   Self.Y2 := Y2;
+end;
+
+constructor TBox.Create(const Width, Height: Integer);
+begin
+  Self.X1 := 0;
+  Self.Y1 := 0;
+  Self.X2 := Width - 1;
+  Self.Y2 := Height - 1;
 end;
 
 function TBox.GetHeight: Integer;
