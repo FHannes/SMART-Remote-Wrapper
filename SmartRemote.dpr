@@ -228,16 +228,14 @@ end;
 function _GetPixel(const Client: Pointer; const X, Y: Integer): Integer; stdcall;
 var
   Data: PClientData;
-  Box: TBox;
-  W: Integer;
+  W, H: Integer;
   Col: TSCARBmpData;
 begin
   if (Client <> nil) and (Exp <> nil) then
   begin
     try
       Data := Exp^.TSCARLibraryClient_GetData(Client);
-      Box := Exp^.TSCARClient_GetImageArea(Client);
-      W := Box.X2 - Box.X1 + 1;
+      SMART_GetTargetSize(Data^.Target, W, H);
       Col := SMART_GetImageBuffer(Data^.Target)^[W * Y + X];
       Result := Col.R or Col.G shl 8 or Col.B shl 16;
     except
@@ -608,3 +606,4 @@ exports OnGetFuncInfo;
 exports LibArch;
 
 end.
+
