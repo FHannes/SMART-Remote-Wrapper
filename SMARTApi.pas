@@ -71,6 +71,14 @@ var
   SMART_Exp_Active: function: Boolean; cdecl;
   SMART_Exp_Enabled: function: Boolean; cdecl;
 
+function SMART_GetDebugBuffer(const Target: PTarget): PSCARBmpDataArray;
+
 implementation
+
+function SMART_GetDebugBuffer(const Target: PTarget): PSCARBmpDataArray;
+begin
+  Result := @Target^.Data^;
+  Inc(Result, Target^.Data^.DbgOff div 4);
+end;
 
 end.

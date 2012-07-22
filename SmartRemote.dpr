@@ -75,7 +75,7 @@ begin
   end;
 end;
 
-procedure _SetCursorPos(const Client: Pointer; const X, Y: Integer); stdcall;
+procedure _SetCursorPos(const Client: TSCARClient; const X, Y: Integer); stdcall;
 var
   Data: PClientData;
 begin
@@ -88,7 +88,7 @@ begin
   end;
 end;
 
-procedure _GetCursorPos(const Client: Pointer; out X, Y: Integer); stdcall;
+procedure _GetCursorPos(const Client: TSCARClient; out X, Y: Integer); stdcall;
 var
   Data: PClientData;
 begin
@@ -101,7 +101,7 @@ begin
   end;
 end;
 
-procedure _MouseBtnDown(const Client: Pointer; const Button: TMouseButton); stdcall;
+procedure _MouseBtnDown(const Client: TSCARClient; const Button: TMouseButton); stdcall;
 var
   Data: PClientData;
 begin
@@ -116,7 +116,7 @@ begin
   end;
 end;
 
-procedure _MouseBtnUp(const Client: Pointer; const Button: TMouseButton); stdcall;
+procedure _MouseBtnUp(const Client: TSCARClient; const Button: TMouseButton); stdcall;
 var
   Data: PClientData;
 begin
@@ -131,7 +131,7 @@ begin
   end;
 end;
 
-function _GetMouseBtnState(const Client: Pointer; const Button: TMouseButton): Boolean; stdcall;
+function _GetMouseBtnState(const Client: TSCARClient; const Button: TMouseButton): Boolean; stdcall;
 var
   Data: PClientData;
 begin
@@ -147,7 +147,7 @@ begin
   end;
 end;
 
-procedure _VKeyDown(const Client: Pointer; const VKey: Byte); stdcall;
+procedure _VKeyDown(const Client: TSCARClient; const VKey: Byte); stdcall;
 var
   Data: PClientData;
 begin
@@ -161,7 +161,7 @@ begin
   end;
 end;
 
-procedure _VKeyUp(const Client: Pointer; const VKey: Byte); stdcall;
+procedure _VKeyUp(const Client: TSCARClient; const VKey: Byte); stdcall;
 var
   Data: PClientData;
 begin
@@ -175,17 +175,17 @@ begin
   end;
 end;
 
-procedure _KeyDown(const Client: Pointer; const Key: WideChar); stdcall;
+procedure _KeyDown(const Client: TSCARClient; const Key: WideChar); stdcall;
 begin
   _VKeyDown(Client, Ord(AnsiChar(Key)));
 end;
 
-procedure _KeyUp(const Client: Pointer; const Key: WideChar); stdcall;
+procedure _KeyUp(const Client: TSCARClient; const Key: WideChar); stdcall;
 begin
   _VKeyUp(Client, Ord(AnsiChar(Key)));
 end;
 
-function _GetKeyState(const Client: Pointer; const VKey: Byte): Boolean; stdcall;
+function _GetKeyState(const Client: TSCARClient; const VKey: Byte): Boolean; stdcall;
 var
   Data: PClientData;
 begin
@@ -200,7 +200,7 @@ begin
     Result := False;
 end;
 
-procedure _Capture(const Client: Pointer; const DC: HDC; const XS, YS, XE, YE, DestX, DestY: Integer); stdcall;
+procedure _Capture(const Client: TSCARClient; const DC: HDC; const XS, YS, XE, YE, DestX, DestY: Integer); stdcall;
 var
   Data: PClientData;
   W, H: Integer;
@@ -225,7 +225,7 @@ begin
   end;
 end;
 
-function _GetPixel(const Client: Pointer; const X, Y: Integer): Integer; stdcall;
+function _GetPixel(const Client: TSCARClient; const X, Y: Integer): Integer; stdcall;
 var
   Data: PClientData;
   W, H: Integer;
@@ -245,7 +245,7 @@ begin
     Result := -1;
 end;
 
-procedure _Destroy(const Client: Pointer); stdcall;
+procedure _Destroy(const Client: TSCARClient); stdcall;
 var
   Data: PClientData;
 begin
@@ -257,7 +257,7 @@ begin
   end;
 end;
 
-procedure _TypeText(const Client: Pointer; const Text: string; const PressIval, PressIvalRnd, ModIval, ModIvalRnd,
+procedure _TypeText(const Client: TSCARClient; const Text: string; const PressIval, PressIvalRnd, ModIval, ModIvalRnd,
   CharIval, CharIvalRnd: Integer; const UseNumpad: Boolean); stdcall;
 var
   Data: PClientData;
@@ -271,7 +271,7 @@ begin
   end;
 end;
 
-function _Exists(const Client: Pointer): Boolean; stdcall;
+function _Exists(const Client: TSCARClient): Boolean; stdcall;
 var
   Data: PClientData;
 begin
@@ -283,7 +283,7 @@ begin
   end;
 end;
 
-function _Update(const Client: Pointer): Boolean; stdcall;
+function _Update(const Client: TSCARClient): Boolean; stdcall;
 var
   Data: PClientData;
   W, H: Integer;
@@ -303,7 +303,7 @@ begin
   end;
 end;
 
-function _Clone(const Client: Pointer): Pointer; stdcall;
+function _Clone(const Client: TSCARClient): TSCARClient; stdcall;
 var
   Callbacks: PLibClientCallbacks;
   Data, NewData: PClientData;
@@ -496,6 +496,72 @@ begin
   Result := SMART_Exp_Enabled;
 end;
 
+procedure SmartDebugBitmap(const Client: TSCARClient; const Bmp: TSCARBitmap); stdcall;
+var
+  Data: PClientData;
+  W, H, BmpW, BmpH, X, Y: Integer;
+  Box: TBox;
+  Bits, DebugBits: PSCARBmpDataArray;
+begin
+  if (Client <> nil) and (Exp <> nil) and (Bmp <> nil) then
+  try
+    Data := Exp^.TSCARLibraryClient_GetData(Client);
+    Box := Exp^.TSCARClient_GetImageArea(Client);
+    SMART_GetTargetSize(Data^.Target, W, H);
+    BmpW := Exp^.TSCARBitmap_GetWidth(Bmp);
+    BmpH := Exp^.TSCARBitmap_GetHeight(Bmp);
+    Bits := Exp^.TSCARBitmap_GetBits(Bmp);
+    DebugBits := SMART_GetDebugBuffer(Data^.Target);
+    FillChar(DebugBits^, W * H * 4, 0);
+    for Y := 0 to BmpH - 1 do
+      for X := 0 to BmpW - 1 do
+        if ((Box.X1 + X) <= W) and ((Box.Y1 + Y) <= H) then
+          DebugBits^[(Box.Y1 + Y) * W + (Box.X1 + X)] := Bits^[Y * BmpW + X];
+  except
+  end;
+end;
+
+procedure SmartDebugBitmapEx(const Client: TSCARClient; const Bmp: TSCARBitmap; const X, Y: Integer); stdcall;
+var
+  Data: PClientData;
+  W, H, BmpW, BmpH, XX, YY: Integer;
+  Box: TBox;
+  Bits, DebugBits: PSCARBmpDataArray;
+begin
+  if (Client <> nil) and (Exp <> nil) and (Bmp <> nil) then
+  try
+    Data := Exp^.TSCARLibraryClient_GetData(Client);
+    Box := Exp^.TSCARClient_GetImageArea(Client);
+    SMART_GetTargetSize(Data^.Target, W, H);
+    BmpW := Exp^.TSCARBitmap_GetWidth(Bmp);
+    BmpH := Exp^.TSCARBitmap_GetHeight(Bmp);
+    Bits := Exp^.TSCARBitmap_GetBits(Bmp);
+    DebugBits := SMART_GetDebugBuffer(Data^.Target);
+    FillChar(DebugBits^, W * H * 4, 0);
+    for YY := 0 to BmpH - 1 do
+      for XX := 0 to BmpW - 1 do
+        if ((Box.X1 + XX + X) <= W) and ((Box.Y1 + YY + Y) <= H) then
+          DebugBits^[(Box.Y1 + YY + Y) * W + (Box.X1 + XX + X)] := Bits^[YY * BmpW + XX];
+  except
+  end;
+end;
+
+procedure SmartClearDebug(const Client: TSCARClient); stdcall;
+var
+  Data: PClientData;
+  W, H: Integer;
+  DebugBits: PSCARBmpDataArray;
+begin
+  if (Client <> nil) and (Exp <> nil) then
+  try
+    Data := Exp^.TSCARLibraryClient_GetData(Client);
+    SMART_GetTargetSize(Data^.Target, W, H);
+    DebugBits := SMART_GetDebugBuffer(Data^.Target);
+    FillChar(DebugBits^, W * H * 4, 0);
+  except
+  end;
+end;
+
 procedure OnLoadLib(const SCARExports: PExports); stdcall;
 begin
   Exp := SCARExports;
@@ -509,7 +575,7 @@ end;
 
 function OnGetFuncCount: Integer; stdcall;
 begin
-  Result := 15;
+  Result := 18;
 end;
 
 function OnGetFuncInfo(const Idx: Integer; out ProcAddr: Pointer; out ProcDef: PAnsiChar;
@@ -590,6 +656,21 @@ begin
     14: begin
       ProcAddr := @SmartEnabled;
       ProcDef := 'function SmartEnabled: Boolean;';
+      CallConv := ccStdCall;
+    end;
+    15: begin
+      ProcAddr := @SmartDebugBitmap;
+      ProcDef := 'procedure SmartDebugBitmap(const Client: TSCARClient; const Bmp: TSCARBitmap);';
+      CallConv := ccStdCall;
+    end;
+    16: begin
+      ProcAddr := @SmartDebugBitmapEx;
+      ProcDef := 'procedure SmartDebugBitmapEx(const Client: TSCARClient; const Bmp: TSCARBitmap; const X, Y: Integer);';
+      CallConv := ccStdCall;
+    end;
+    17: begin
+      ProcAddr := @SmartDebugBitmap;
+      ProcDef := 'procedure SmartClearDebug(const Client: TSCARClient); stdcall;';
       CallConv := ccStdCall;
     end;
     else Result := -1;
