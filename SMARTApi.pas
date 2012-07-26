@@ -48,7 +48,7 @@ var
   SMART_MouseBtnDown: procedure(const Target: PTarget; const X, Y: Integer; const Btn: Integer); cdecl;
   SMART_MouseBtnUp: procedure(const Target: PTarget; const X, Y: Integer; const Btn: Integer); cdecl;
   SMART_GetMouseBtnState: function(const Target: PTarget; const Btn: Integer): Boolean; cdecl;
-  SMART_TypeText: procedure(const Target: PTarget; const Str: PAnsiChar; const KeyWait, KeyModWait: Integer); stdcall;
+  SMART_TypeText: procedure(const Target: PTarget; const Str: PAnsiChar; const KeyWait, KeyModWait: Integer); cdecl;
   SMART_VKeyDown: procedure(const Target: PTarget; const Key: Byte); cdecl;
   SMART_VKeyUp: procedure(const Target: PTarget; const Key: Byte); cdecl;
   SMART_GetKeyState: function(const Target: PTarget; const Key: Byte): Boolean; cdecl;
