@@ -44,34 +44,30 @@ begin
   Result := SMARTLib <> 0;
   if Result then
   begin
-    SMART_RequestTarget := GetProcAddress(SMARTLib, 'EIOS_RequestTarget');
-    SMART_ReleaseTarget := GetProcAddress(SMARTLib, 'EIOS_ReleaseTarget');
-    SMART_GetTargetSize := GetProcAddress(SMARTLib, 'EIOS_GetTargetDimensions');
-    SMART_GetImageBuffer := GetProcAddress(SMARTLib, 'EIOS_GetImageBuffer');
-    SMART_GetMousePos := GetProcAddress(SMARTLib, 'EIOS_GetMousePosition');
-    SMART_SetMousePos := GetProcAddress(SMARTLib, 'EIOS_MoveMouse');
-    SMART_MouseBtnDown := GetProcAddress(SMARTLib, 'EIOS_HoldMouse');
-    SMART_MouseBtnUp := GetProcAddress(SMARTLib, 'EIOS_ReleaseMouse');
-    SMART_GetMouseBtnState := GetProcAddress(SMARTLib, 'EIOS_IsMouseHeld');
-    SMART_TypeText := GetProcAddress(SMARTLib, 'EIOS_SendString');
-    SMART_VKeyDown := GetProcAddress(SMARTLib, 'EIOS_HoldKey');
-    SMART_VKeyUp := GetProcAddress(SMARTLib, 'EIOS_ReleaseKey');
-    SMART_GetKeyState := GetProcAddress(SMARTLib, 'EIOS_IsKeyHeld');
-
-    SMART_Exp_ClientID := GetProcAddress(SMARTLib, 'exp_clientID');
-    SMART_Exp_GetClients := GetProcAddress(SMARTLib, 'exp_getClients');
-    SMART_Exp_SpawnClient := GetProcAddress(SMARTLib, 'exp_spawnClient');
-    SMART_Exp_PairClient := GetProcAddress(SMARTLib, 'exp_pairClient');
-    SMART_Exp_KillClient := GetProcAddress(SMARTLib, 'exp_killClient');
-    SMART_Exp_CurrentClient := GetProcAddress(SMARTLib, 'exp_getCurrent');
-    SMART_Exp_GetRefresh := GetProcAddress(SMARTLib, 'exp_getRefresh');
-    SMART_Exp_SetRefresh := GetProcAddress(SMARTLib, 'exp_setRefresh');
-    SMART_Exp_SetTransparentColor := GetProcAddress(SMARTLib, 'exp_setTransparentColor');
-    SMART_Exp_SetDebug := GetProcAddress(SMARTLib, 'exp_setDebug');
-    SMART_Exp_SetGraphics := GetProcAddress(SMARTLib, 'exp_setGraphics');
-    SMART_Exp_SetEnabled := GetProcAddress(SMARTLib, 'exp_setEnabled');
-    SMART_Exp_Active := GetProcAddress(SMARTLib, 'exp_isActive');
-    SMART_Exp_Enabled := GetProcAddress(SMARTLib, 'exp_isBlocking');
+    SMART_RequestTarget := GetProcAddress(SMARTLib, 'exp_RequestTarget');
+    SMART_ReleaseTarget := GetProcAddress(SMARTLib, 'exp_ReleaseTarget');
+    SMART_GetMousePos := GetProcAddress(SMARTLib, 'exp_GetMousePosition');
+    SMART_SetMousePos := GetProcAddress(SMARTLib, 'exp_MoveMouse');
+    SMART_MouseBtnDown := GetProcAddress(SMARTLib, 'exp_HoldMouse');
+    SMART_MouseBtnUp := GetProcAddress(SMARTLib, 'exp_ReleaseMouse');
+    SMART_GetMouseBtnState := GetProcAddress(SMARTLib, 'exp_IsMouseHeld');
+    SMART_TypeText := GetProcAddress(SMARTLib, 'exp_SendString');
+    SMART_VKeyDown := GetProcAddress(SMARTLib, 'exp_HoldKey');
+    SMART_VKeyUp := GetProcAddress(SMARTLib, 'exp_ReleaseKey');
+    SMART_GetKeyState := GetProcAddress(SMARTLib, 'exp_IsKeyHeld');
+    SMART_ClientID := GetProcAddress(SMARTLib, 'exp_clientID');
+    SMART_GetClients := GetProcAddress(SMARTLib, 'exp_getClients');
+    SMART_SpawnClient := GetProcAddress(SMARTLib, 'exp_spawnClient');
+    SMART_PairClient := GetProcAddress(SMARTLib, 'exp_pairClient');
+    SMART_KillClient := GetProcAddress(SMARTLib, 'exp_killClient');
+    SMART_GetRefresh := GetProcAddress(SMARTLib, 'exp_getRefresh');
+    SMART_SetRefresh := GetProcAddress(SMARTLib, 'exp_setRefresh');
+    SMART_SetTransparentColor := GetProcAddress(SMARTLib, 'exp_setTransparentColor');
+    SMART_SetDebug := GetProcAddress(SMARTLib, 'exp_setDebug');
+    SMART_SetGraphics := GetProcAddress(SMARTLib, 'exp_setGraphics');
+    SMART_SetEnabled := GetProcAddress(SMARTLib, 'exp_setEnabled');
+    SMART_Active := GetProcAddress(SMARTLib, 'exp_isActive');
+    SMART_Enabled := GetProcAddress(SMARTLib, 'exp_isBlocking');
   end;
 end;
 
@@ -396,7 +392,7 @@ end;
 
 function SmartClientID(const Idx: Integer): Integer; stdcall;
 begin
-  Result := SMART_Exp_ClientID(Idx);
+  Result := SMART_ClientID(Idx);
 end;
 
 function SmartGetClients(const OnlyUnpaired: Boolean): Integer; stdcall;
@@ -405,7 +401,7 @@ var
 begin
   GetDir(0, CurDir);
   SetCurrentDirectory(PChar(SMART_Dir));
-  Result := SMART_Exp_GetClients(OnlyUnpaired);
+  Result := SMART_GetClients(OnlyUnpaired);
   SetCurrentDirectory(PChar(CurDir));
 end;
 
@@ -426,7 +422,7 @@ begin
   end;
   GetDir(0, CurDir);
   SetCurrentDirectory(PChar(SMART_Dir));
-  Result := SMART_Exp_SpawnClient(PAnsiChar(RemotePathFixed), PAnsiChar(Root), PAnsiChar(Params), Width, Height,
+  Result := SMART_SpawnClient(PAnsiChar(RemotePathFixed), PAnsiChar(Root), PAnsiChar(Params), Width, Height,
     PAnsiChar(InitSeq), PAnsiChar(UserAgent), PAnsiChar(JVMPath), MaxMem);
   SetCurrentDirectory(PChar(CurDir));
 end;
@@ -437,7 +433,7 @@ var
 begin
   GetDir(0, CurDir);
   SetCurrentDirectory(PChar(SMART_Dir));
-  Result := SMART_Exp_PairClient(PID);
+  Result := SMART_PairClient(PID);
   SetCurrentDirectory(PChar(CurDir));
 end;
 
@@ -447,53 +443,88 @@ var
 begin
   GetDir(0, CurDir);
   SetCurrentDirectory(PChar(SMART_Dir));
-  Result := SMART_Exp_KillClient(PID);
+  Result := SMART_KillClient(PID);
   SetCurrentDirectory(PChar(CurDir));
 end;
 
-function SmartCurrentClient: Integer; stdcall;
+function SmartGetRefresh(const Client: TSCARClient): Integer; stdcall;
+var
+  Data: PClientData;
 begin
-  Result := SMART_Exp_CurrentClient;
+  if (Client <> nil) and (Exp <> nil) then
+  begin
+    Data := Exp^.TSCARLibraryClient_GetData(Client);
+    Result := SMART_GetRefresh(Data^.Target);
+  end else
+    Result := 0;
 end;
 
-function SmartGetRefresh: Integer; stdcall;
+procedure SmartSetRefresh(const Client: TSCARClient; const X: Integer); stdcall;
+var
+  Data: PClientData;
 begin
-  Result := SMART_Exp_GetRefresh;
+  if (Client <> nil) and (Exp <> nil) then
+  begin
+    Data := Exp^.TSCARLibraryClient_GetData(Client);
+    SMART_SetRefresh(Data^.Target, X);
+  end;
 end;
 
-procedure SmartSetRefresh(const X: Integer); stdcall;
+procedure SmartSetDebug(const Client: TSCARClient; const Enabled: Boolean); stdcall;
+var
+  Data: PClientData;
 begin
-  SMART_Exp_SetRefresh(X);
+  if (Client <> nil) and (Exp <> nil) then
+  begin
+    Data := Exp^.TSCARLibraryClient_GetData(Client);
+    SMART_SetDebug(Data^.Target, Enabled);
+  end;
 end;
 
-procedure SmartSetTransparentColor(const Color: Integer); stdcall;
+procedure SmartSetGraphics(const Client: TSCARClient; const Enabled: Boolean); stdcall;
+var
+  Data: PClientData;
 begin
-  SMART_Exp_SetTransparentColor(Color);
+  if (Client <> nil) and (Exp <> nil) then
+  begin
+    Data := Exp^.TSCARLibraryClient_GetData(Client);
+    SMART_SetGraphics(Data^.Target, Enabled);
+  end;
 end;
 
-procedure SmartSetDebug(const Enabled: Boolean); stdcall;
+procedure SmartSetEnabled(const Client: TSCARClient; const Enabled: Boolean); stdcall;
+var
+  Data: PClientData;
 begin
-  SMART_Exp_SetDebug(Enabled);
+  if (Client <> nil) and (Exp <> nil) then
+  begin
+    Data := Exp^.TSCARLibraryClient_GetData(Client);
+    SMART_SetEnabled(Data^.Target, Enabled);
+  end;
 end;
 
-procedure SmartSetGraphics(const Enabled: Boolean); stdcall;
+function SmartActive(const Client: TSCARClient): Boolean; stdcall;
+var
+  Data: PClientData;
 begin
-  SMART_Exp_SetGraphics(Enabled);
+  if (Client <> nil) and (Exp <> nil) then
+  begin
+    Data := Exp^.TSCARLibraryClient_GetData(Client);
+    Result := SMART_Active(Data^.Target);
+  end else
+    Result := False;
 end;
 
-procedure SmartSetEnabled(const Enabled: Boolean); stdcall;
+function SmartEnabled(const Client: TSCARClient): Boolean; stdcall;
+var
+  Data: PClientData;
 begin
-  SMART_Exp_SetEnabled(Enabled);
-end;
-
-function SmartActive: Boolean; stdcall;
-begin
-  Result := SMART_Exp_Active;
-end;
-
-function SmartEnabled: Boolean; stdcall;
-begin
-  Result := SMART_Exp_Enabled;
+  if (Client <> nil) and (Exp <> nil) then
+  begin
+    Data := Exp^.TSCARLibraryClient_GetData(Client);
+    Result := SMART_Enabled(Data^.Target);
+  end else
+    Result := False;
 end;
 
 procedure SmartDebugBitmap(const Client: TSCARClient; const Bmp: TSCARBitmap); stdcall;
@@ -501,6 +532,8 @@ var
   Data: PClientData;
   W, H, BmpW, BmpH, X, Y: Integer;
   Box: TBox;
+  TranspCol: Integer;
+  Col: TSCARBmpData;
   Bits, DebugBits: PSCARBmpDataArray;
 begin
   if (Client <> nil) and (Exp <> nil) and (Bmp <> nil) then
@@ -512,7 +545,21 @@ begin
     BmpH := Exp^.TSCARBitmap_GetHeight(Bmp);
     Bits := Exp^.TSCARBitmap_GetBits(Bmp);
     DebugBits := SMART_GetDebugBuffer(Data^.Target);
-    FillChar(DebugBits^, W * H * 4, 0);
+    TranspCol := Exp^.TSCARBitmap_GetTranspColor(Bmp);
+    if TranspCol <> -1 then
+    begin
+      SMART_SetTransparentColor(Data^.Target, TranspCol);
+      FillChar(Col, SizeOf(TSCARBmpData), 0);
+      Col.R := TranspCol and $FF;
+      Col.G := (TranspCol shr 8) and $FF;
+      Col.B := (TranspCol shr 16) and $FF;
+      for Y := 0 to BmpH - 1 do
+        for X := 0 to BmpW - 1 do
+          DebugBits^[Y * W + X] := Col;
+    end else begin
+      SMART_SetTransparentColor(Data^.Target, 0);
+      FillChar(DebugBits^, W * H * SizeOf(TSCARBmpData), 0);
+    end;
     for Y := 0 to BmpH - 1 do
       for X := 0 to BmpW - 1 do
         if ((Box.X1 + X) <= W) and ((Box.Y1 + Y) <= H) then
@@ -526,6 +573,8 @@ var
   Data: PClientData;
   W, H, BmpW, BmpH, XX, YY: Integer;
   Box: TBox;
+  TranspCol: Integer;
+  Col: TSCARBmpData;
   Bits, DebugBits: PSCARBmpDataArray;
 begin
   if (Client <> nil) and (Exp <> nil) and (Bmp <> nil) then
@@ -537,7 +586,21 @@ begin
     BmpH := Exp^.TSCARBitmap_GetHeight(Bmp);
     Bits := Exp^.TSCARBitmap_GetBits(Bmp);
     DebugBits := SMART_GetDebugBuffer(Data^.Target);
-    FillChar(DebugBits^, W * H * 4, 0);
+    TranspCol := Exp^.TSCARBitmap_GetTranspColor(Bmp);
+    if TranspCol <> -1 then
+    begin
+      SMART_SetTransparentColor(Data^.Target, TranspCol);
+      FillChar(Col, SizeOf(TSCARBmpData), 0);
+      Col.R := TranspCol and $FF;
+      Col.G := (TranspCol shr 8) and $FF;
+      Col.B := (TranspCol shr 16) and $FF;
+      for YY := 0 to BmpH - 1 do
+        for XX := 0 to BmpW - 1 do
+          DebugBits^[YY * W + XX] := Col;
+    end else begin
+      SMART_SetTransparentColor(Data^.Target, 0);
+      FillChar(DebugBits^, W * H * SizeOf(TSCARBmpData), 0);
+    end;
     for YY := 0 to BmpH - 1 do
       for XX := 0 to BmpW - 1 do
         if ((Box.X1 + XX + X) <= W) and ((Box.Y1 + YY + Y) <= H) then
@@ -557,7 +620,8 @@ begin
     Data := Exp^.TSCARLibraryClient_GetData(Client);
     SMART_GetTargetSize(Data^.Target, W, H);
     DebugBits := SMART_GetDebugBuffer(Data^.Target);
-    FillChar(DebugBits^, W * H * 4, 0);
+    SMART_SetTransparentColor(Data^.Target, 0);
+    FillChar(DebugBits^, W * H * SizeOf(TSCARBmpData), 0);
   except
   end;
 end;
@@ -575,7 +639,7 @@ end;
 
 function OnGetFuncCount: Integer; stdcall;
 begin
-  Result := 18;
+  Result := 17;
 end;
 
 function OnGetFuncInfo(const Idx: Integer; out ProcAddr: Pointer; out ProcDef: PAnsiChar;
@@ -614,62 +678,57 @@ begin
       CallConv := ccStdCall;
     end;
     6: begin
-      ProcAddr := @SmartCurrentClient;
-      ProcDef := 'function SmartCurrentClient: Integer;';
+      ProcAddr := @SmartKillClient;
+      ProcDef := 'function SmartKillClient(const PID: Integer): Boolean;';
       CallConv := ccStdCall;
     end;
     7: begin
       ProcAddr := @SmartGetRefresh;
-      ProcDef := 'function SmartGetRefresh: Integer;';
+      ProcDef := 'function SmartGetRefresh(const Client: TSCARClient): Integer;';
       CallConv := ccStdCall;
     end;
     8: begin
       ProcAddr := @SmartSetRefresh;
-      ProcDef := 'procedure SmartSetRefresh(const X: Integer);';
+      ProcDef := 'procedure SmartSetRefresh(const Client: TSCARClient; const X: Integer);';
       CallConv := ccStdCall;
     end;
     9: begin
-      ProcAddr := @SmartSetTransparentColor;
-      ProcDef := 'procedure SmartSetTransparentColor(const Color: Integer);';
+      ProcAddr := @SmartSetDebug;
+      ProcDef := 'procedure SmartSetDebug(const Client: TSCARClient; const Enabled: Boolean);';
       CallConv := ccStdCall;
     end;
     10: begin
-      ProcAddr := @SmartSetDebug;
-      ProcDef := 'procedure SmartSetDebug(const Enabled: Boolean);';
+      ProcAddr := @SmartSetGraphics;
+      ProcDef := 'procedure SmartSetGraphics(const Client: TSCARClient; const Enabled: Boolean);';
       CallConv := ccStdCall;
     end;
     11: begin
-      ProcAddr := @SmartSetGraphics;
-      ProcDef := 'procedure SmartSetGraphics(const Enabled: Boolean);';
+      ProcAddr := @SmartSetEnabled;
+      ProcDef := 'procedure SmartSetEnabled(const Client: TSCARClient; const Enabled: Boolean);';
       CallConv := ccStdCall;
     end;
     12: begin
-      ProcAddr := @SmartSetEnabled;
-      ProcDef := 'procedure SmartSetEnabled(const Enabled: Boolean);';
+      ProcAddr := @SmartActive;
+      ProcDef := 'function SmartActive(const Client: TSCARClient): Boolean;';
       CallConv := ccStdCall;
     end;
     13: begin
-      ProcAddr := @SmartActive;
-      ProcDef := 'function SmartActive: Boolean;';
+      ProcAddr := @SmartEnabled;
+      ProcDef := 'function SmartEnabled(const Client: TSCARClient): Boolean;';
       CallConv := ccStdCall;
     end;
     14: begin
-      ProcAddr := @SmartEnabled;
-      ProcDef := 'function SmartEnabled: Boolean;';
-      CallConv := ccStdCall;
-    end;
-    15: begin
       ProcAddr := @SmartDebugBitmap;
       ProcDef := 'procedure SmartDebugBitmap(const Client: TSCARClient; const Bmp: TSCARBitmap);';
       CallConv := ccStdCall;
     end;
-    16: begin
+    15: begin
       ProcAddr := @SmartDebugBitmapEx;
       ProcDef := 'procedure SmartDebugBitmapEx(const Client: TSCARClient; const Bmp: TSCARBitmap; const X, Y: Integer);';
       CallConv := ccStdCall;
     end;
-    17: begin
-      ProcAddr := @SmartDebugBitmap;
+    16: begin
+      ProcAddr := @SmartClearDebug;
       ProcDef := 'procedure SmartClearDebug(const Client: TSCARClient); stdcall;';
       CallConv := ccStdCall;
     end;
