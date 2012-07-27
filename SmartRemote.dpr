@@ -395,6 +395,18 @@ begin
   Result := SMART_ClientID(Idx);
 end;
 
+function SmartClientIDEx(const Client: TSCARClient): Integer; stdcall;
+var
+  Data: PClientData;
+begin
+  if (Client <> nil) and (Exp <> nil) then
+  begin
+    Data := Exp^.TSCARLibraryClient_GetData(Client);
+    Result := Data^.Target^.Data^.Id;
+  end else
+    Result := 0;
+end;
+
 function SmartGetClients(const OnlyUnpaired: Boolean): Integer; stdcall;
 var
   CurDir: string;
@@ -639,7 +651,7 @@ end;
 
 function OnGetFuncCount: Integer; stdcall;
 begin
-  Result := 17;
+  Result := 18;
 end;
 
 function OnGetFuncInfo(const Idx: Integer; out ProcAddr: Pointer; out ProcDef: PAnsiChar;
@@ -668,66 +680,71 @@ begin
       CallConv := ccStdCall;
     end;
     4: begin
+      ProcAddr := @SmartClientIDEx;
+      ProcDef := 'function SmartClientIDEx(const Client: TSCARClient): Integer;';
+      CallConv := ccStdCall;
+    end;
+    5: begin
       ProcAddr := @SmartSpawnClient;
       ProcDef := 'function SmartSpawnClient(const RemotePath, Root, Params: AnsiString; const Width, Height: Integer; const InitSeq, UserAgent, JVMPath: AnsiString; const MaxMem: Integer): Integer;';
       CallConv := ccStdCall;
     end;
-    5: begin
+    6: begin
       ProcAddr := @SmartPairClient;
       ProcDef := 'function SmartPairClient(const PID: Integer): Boolean;';
       CallConv := ccStdCall;
     end;
-    6: begin
+    7: begin
       ProcAddr := @SmartKillClient;
       ProcDef := 'function SmartKillClient(const PID: Integer): Boolean;';
       CallConv := ccStdCall;
     end;
-    7: begin
+    8: begin
       ProcAddr := @SmartGetRefresh;
       ProcDef := 'function SmartGetRefresh(const Client: TSCARClient): Integer;';
       CallConv := ccStdCall;
     end;
-    8: begin
+    9: begin
       ProcAddr := @SmartSetRefresh;
       ProcDef := 'procedure SmartSetRefresh(const Client: TSCARClient; const X: Integer);';
       CallConv := ccStdCall;
     end;
-    9: begin
+    10: begin
       ProcAddr := @SmartSetDebug;
       ProcDef := 'procedure SmartSetDebug(const Client: TSCARClient; const Enabled: Boolean);';
       CallConv := ccStdCall;
     end;
-    10: begin
+    11: begin
       ProcAddr := @SmartSetGraphics;
       ProcDef := 'procedure SmartSetGraphics(const Client: TSCARClient; const Enabled: Boolean);';
       CallConv := ccStdCall;
     end;
-    11: begin
+    12: begin
       ProcAddr := @SmartSetEnabled;
       ProcDef := 'procedure SmartSetEnabled(const Client: TSCARClient; const Enabled: Boolean);';
       CallConv := ccStdCall;
     end;
-    12: begin
+    13: begin
       ProcAddr := @SmartActive;
       ProcDef := 'function SmartActive(const Client: TSCARClient): Boolean;';
       CallConv := ccStdCall;
     end;
-    13: begin
+    14: begin
       ProcAddr := @SmartEnabled;
       ProcDef := 'function SmartEnabled(const Client: TSCARClient): Boolean;';
       CallConv := ccStdCall;
     end;
-    14: begin
+    15: begin
       ProcAddr := @SmartDebugBitmap;
       ProcDef := 'procedure SmartDebugBitmap(const Client: TSCARClient; const Bmp: TSCARBitmap);';
       CallConv := ccStdCall;
     end;
-    15: begin
+    16: begin
       ProcAddr := @SmartDebugBitmapEx;
       ProcDef := 'procedure SmartDebugBitmapEx(const Client: TSCARClient; const Bmp: TSCARBitmap; const X, Y: Integer);';
       CallConv := ccStdCall;
     end;
-    16: begin
+    17: begin
       ProcAddr := @SmartClearDebug;
       ProcDef := 'procedure SmartClearDebug(const Client: TSCARClient); stdcall;';
       CallConv := ccStdCall;
