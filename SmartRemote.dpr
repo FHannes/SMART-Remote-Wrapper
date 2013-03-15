@@ -216,8 +216,8 @@ begin
       biBitCount := 32;
       biCompression := BI_RGB;
     end;
-    SetDIBitsToDevice(DC, 0, 0, XE - XS + 1, YE - YS + 1, XS, H - YE - 1, 0, H, SMART_GetImageBuffer(Data^.Target), Info,
-      DIB_RGB_COLORS);
+    SetDIBitsToDevice(DC, DestX, DestY, XE - XS + 1, YE - YS + 1, XS, H - YE - 1, 0, H,
+      SMART_GetImageBuffer(Data^.Target), Info, DIB_RGB_COLORS);
   end;
 end;
 
