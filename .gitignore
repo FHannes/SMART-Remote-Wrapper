@@ -1,0 +1,8 @@
+*.dcu
+*.skincfg
+*.local
+*.identcache
+__history
+*.drc
+*.map
+*.dll
