@@ -205,7 +205,7 @@ begin
   if (Client <> nil) and (Exp <> nil) then
   begin
     Data := Exp^.TSCARLibraryClient_GetData(Client);
-      SMART_GetTargetSize(Data^.Target, W, H);
+    SMART_GetTargetSize(Data^.Target, W, H);
     FillChar(Info, SizeOf(TBitmapInfo), 0);
     with Info.bmiHeader do
     begin
