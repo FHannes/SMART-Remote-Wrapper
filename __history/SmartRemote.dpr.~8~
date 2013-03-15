@@ -266,7 +266,6 @@ begin
     Data := Exp^.TSCARLibraryClient_GetData(Client);
     Str := '';
     Len := Length(Text);
-    LastChr := #0;
     for Idx := 1 to Len do
     begin
       Chr := AnsiChar(Text[Idx]);

@@ -266,11 +266,10 @@ begin
     Data := Exp^.TSCARLibraryClient_GetData(Client);
     Str := '';
     Len := Length(Text);
-    LastChr := #0;
     for Idx := 1 to Len do
     begin
       Chr := AnsiChar(Text[Idx]);
-      if not ((Chr = #10) and (LastChr = #13)) then
+      if (Chr = #10) and (LastChr <> #13) then
         if Chr = #13 then
           Str := Str + #10
         else
